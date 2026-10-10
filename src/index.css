@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+@theme {
+  --color-teal-brand: #0F5257;
+  --color-teal-dark: #0A3B3F;
+  --color-cream: #F7F3EA;
+  --color-amber-brand: #E0A33A;
+  --color-amber-deep: #C98A1B;
+  --color-charcoal: #1F2A2E;
+
+  --font-heading: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+}
