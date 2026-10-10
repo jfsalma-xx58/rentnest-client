@@ -1,11 +1,11 @@
-import Logo from "./components/Logo";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
-    <div className="p-10">
-      <Logo />
-      <div className="mt-6 bg-teal-brand p-6">
-        <Logo light />
+    <div>
+      <Navbar />
+      <div className="mx-auto max-w-7xl p-10">
+        <h1 className="text-4xl font-bold text-teal-brand">Page content here</h1>
       </div>
     </div>
   );
