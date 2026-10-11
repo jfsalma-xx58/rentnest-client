@@ -6,7 +6,10 @@ import {
   FaBath,
   FaRulerCombined,
   FaCheckCircle,
+  FaHeart,
+  FaRegHeart,
 } from "react-icons/fa";
+import toast from "react-hot-toast";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Loading from "../components/Loading";
 
@@ -17,6 +20,8 @@ const PropertyDetails = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  const [favoriteId, setFavoriteId] = useState(null);
+  const [favBusy, setFavBusy] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -26,6 +31,32 @@ const PropertyDetails = () => {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [axiosSecure, id]);
+
+  useEffect(() => {
+    axiosSecure
+      .get(`/favorites/check/${id}`)
+      .then((res) => setFavoriteId(res.data.favorited ? res.data.favoriteId : null))
+      .catch(() => setFavoriteId(null));
+  }, [axiosSecure, id]);
+
+  const handleFavorite = async () => {
+    try {
+      setFavBusy(true);
+      if (favoriteId) {
+        await axiosSecure.delete(`/favorites/${favoriteId}`);
+        setFavoriteId(null);
+        toast.success("Removed from favorites");
+      } else {
+        const res = await axiosSecure.post("/favorites", { propertyId: id });
+        setFavoriteId(res.data.favoriteId || null);
+        toast.success("Added to favorites");
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setFavBusy(false);
+    }
+  };
 
   if (loading) return <Loading />;
 
@@ -95,9 +126,21 @@ const PropertyDetails = () => {
         {/* Summary card */}
         <div className="lg:col-span-2">
           <div className="rounded-xl border border-charcoal/10 bg-white p-6 shadow-sm">
-            <span className="rounded-full bg-teal-brand px-3 py-1 text-xs font-medium text-cream">
-              {type}
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="rounded-full bg-teal-brand px-3 py-1 text-xs font-medium text-cream">
+                {type}
+              </span>
+              <button
+                onClick={handleFavorite}
+                disabled={favBusy}
+                aria-label={favoriteId ? "Remove from favorites" : "Add to favorites"}
+                className="flex items-center gap-2 rounded-full border border-teal-brand px-4 py-1.5 text-sm font-medium text-teal-brand transition-colors hover:bg-teal-brand hover:text-cream disabled:opacity-60"
+              >
+                {favoriteId ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+                {favoriteId ? "Saved" : "Save"}
+              </button>
+            </div>
+
             <h1 className="mt-4 text-3xl font-bold text-teal-brand">{title}</h1>
             <p className="mt-2 flex items-center gap-2 text-charcoal/70">
               <FaMapMarkerAlt className="text-amber-deep" /> {location}
