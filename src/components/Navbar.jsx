@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import toast from "react-hot-toast";
 import Logo from "./Logo";
+import useAuth from "../hooks/useAuth";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-
-  // Temporary placeholder until we build authentication
-  const user = null;
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const linkClass = ({ isActive }) =>
     `font-medium transition-colors hover:text-amber-deep ${
@@ -15,6 +16,13 @@ const Navbar = () => {
     }`;
 
   const closeMenu = () => setOpen(false);
+
+  const handleLogout = async () => {
+    await logout();
+    closeMenu();
+    toast.success("Logged out");
+    navigate("/");
+  };
 
   const links = (
     <>
@@ -33,9 +41,22 @@ const Navbar = () => {
   );
 
   const buttons = user ? (
-    <button className="rounded-md bg-teal-brand px-5 py-2 font-medium text-cream transition-colors hover:bg-teal-dark">
-      Logout
-    </button>
+    <>
+      {user.photoURL && (
+        <img
+          src={user.photoURL}
+          alt={user.displayName || "Profile"}
+          title={user.displayName}
+          className="h-10 w-10 rounded-full border-2 border-amber-brand object-cover"
+        />
+      )}
+      <button
+        onClick={handleLogout}
+        className="rounded-md bg-teal-brand px-5 py-2 font-medium text-cream transition-colors hover:bg-teal-dark"
+      >
+        Logout
+      </button>
+    </>
   ) : (
     <>
       <Link
