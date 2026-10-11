@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home";
 import AllProperties from "../pages/AllProperties";
 import PropertyDetails from "../pages/PropertyDetails";
+import PaymentPage from "../pages/PaymentPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ErrorPage from "../pages/ErrorPage";
@@ -21,6 +22,14 @@ export const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <PropertyDetails />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "payment/:id",
+        element: (
+          <PrivateRoute>
+            <PaymentPage />
           </PrivateRoute>
         ),
       },
