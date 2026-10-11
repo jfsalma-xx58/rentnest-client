@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -10,6 +11,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <Footer />
+      <Toaster position="top-center" />
     </div>
   );
 };
