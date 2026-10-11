@@ -12,6 +12,7 @@ import {
 import toast from "react-hot-toast";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Loading from "../components/Loading";
+import BookingModal from "../components/BookingModal";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -22,6 +23,7 @@ const PropertyDetails = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [favoriteId, setFavoriteId] = useState(null);
   const [favBusy, setFavBusy] = useState(false);
+  const [showBooking, setShowBooking] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -169,6 +171,13 @@ const PropertyDetails = () => {
               </div>
             </div>
 
+            <button
+              onClick={() => setShowBooking(true)}
+              className="mt-6 w-full rounded-md bg-amber-brand px-5 py-3 font-medium text-charcoal transition-colors hover:bg-amber-deep"
+            >
+              Book Property
+            </button>
+
             <div className="mt-6 border-t border-charcoal/10 pt-5 text-sm">
               <p className="font-medium text-teal-brand">Listed by</p>
               <p className="mt-1">{ownerName}</p>
@@ -205,6 +214,10 @@ const PropertyDetails = () => {
           </ul>
         </div>
       </div>
+
+      {showBooking && (
+        <BookingModal property={property} onClose={() => setShowBooking(false)} />
+      )}
     </div>
   );
 };
