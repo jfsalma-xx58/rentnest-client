@@ -7,8 +7,11 @@ import useAuth from "../hooks/useAuth";
 const inputClass =
   "w-full rounded-md border border-charcoal/15 bg-white px-4 py-2.5 outline-none focus:border-teal-brand";
 
+const passwordInputClass = inputClass + " pr-11";
+
 const Register = () => {
-  const { registerUser, updateUserProfile, setLoading } = useAuth();
+  const { registerUser, updateUserProfile, saveUser, getToken, setLoading } =
+    useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -33,6 +36,8 @@ const Register = () => {
       setSubmitting(true);
       await registerUser(email, password);
       await updateUserProfile(name, photo);
+      await saveUser({ name, email, photo });
+      await getToken(email);
       toast.success("Account created! Welcome to RentNest.");
       navigate("/");
     } catch (err) {
@@ -99,7 +104,7 @@ const Register = () => {
                 name="password"
                 required
                 placeholder="At least 6 characters"
-                className={`${inputClass} pr-11`}
+                className={passwordInputClass}
               />
               <button
                 type="button"
@@ -125,7 +130,10 @@ const Register = () => {
 
         <p className="mt-6 text-center text-sm">
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-teal-brand hover:underline">
+          <Link
+            to="/login"
+            className="font-medium text-teal-brand hover:underline"
+          >
             Login
           </Link>
         </p>
