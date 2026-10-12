@@ -10,20 +10,27 @@ const useRole = () => {
 
   useEffect(() => {
     if (authLoading) return;
-
     if (!user?.email) {
       setRole(null);
       setRoleLoading(false);
       return;
     }
-
-    setRoleLoading(true);
+    let active = true;
     axiosSecure
       .get(`/users/role/${user.email}`)
-      .then((res) => setRole(res.data.role))
-      .catch(() => setRole("tenant"))
-      .finally(() => setRoleLoading(false));
-  }, [user, authLoading, axiosSecure]);
+      .then((res) => {
+        if (active) setRole(res.data?.role || "tenant");
+      })
+      .catch(() => {
+        if (active) setRole("tenant");
+      })
+      .finally(() => {
+        if (active) setRoleLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user?.email, authLoading, axiosSecure]);
 
   return [role, roleLoading];
 };
