@@ -13,6 +13,7 @@ import DashboardHome from "../pages/dashboard/DashboardHome";
 import MyBookings from "../pages/dashboard/MyBookings";
 import Favorites from "../pages/dashboard/Favorites";
 import Profile from "../pages/dashboard/Profile";
+import AddProperty from "../pages/dashboard/AddProperty";
 import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
       { path: "my-bookings", element: <MyBookings /> },
       { path: "favorites", element: <Favorites /> },
       { path: "profile", element: <Profile /> },
+      { path: "add-property", element: <AddProperty /> },
     ],
   },
 ]);
