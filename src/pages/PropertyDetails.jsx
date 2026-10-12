@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 import Loading from "../components/Loading";
 import BookingModal from "../components/BookingModal";
+import PropertyReviews from "../components/PropertyReviews";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -214,6 +215,8 @@ const PropertyDetails = () => {
           </ul>
         </div>
       </div>
+
+      <PropertyReviews propertyId={id} />
 
       {showBooking && (
         <BookingModal property={property} onClose={() => setShowBooking(false)} />
