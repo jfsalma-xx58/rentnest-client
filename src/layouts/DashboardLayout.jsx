@@ -1,103 +1,104 @@
 import { useState } from "react";
-import { NavLink, Link, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 import {
   FaBars,
   FaTimes,
+  FaHome,
+  FaUser,
   FaCalendarCheck,
   FaHeart,
-  FaUser,
-  FaHome,
   FaSignOutAlt,
 } from "react-icons/fa";
-import toast, { Toaster } from "react-hot-toast";
-import Logo from "../components/Logo";
-import Loading from "../components/Loading";
 import useAuth from "../hooks/useAuth";
 import useRole from "../hooks/useRole";
 
-const profileLink = { to: "/dashboard/profile", label: "Profile", icon: FaUser };
-
-// Owner and admin links get added here as we build their pages
 const linksByRole = {
   tenant: [
+    { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
+    { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
     { to: "/dashboard/my-bookings", label: "My Bookings", icon: FaCalendarCheck },
     { to: "/dashboard/favorites", label: "Favorites", icon: FaHeart },
-    profileLink,
   ],
-  owner: [profileLink],
-  admin: [profileLink],
+  owner: [
+    { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
+    { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
+  ],
+  admin: [
+    { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
+    { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
+  ],
 };
 
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
   const [role, roleLoading] = useRole();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
-  const closeMenu = () => setOpen(false);
-
-  const handleLogout = async () => {
-    await logout();
-    toast.success("Logged out");
-    navigate("/");
-  };
-
-  if (roleLoading) return <Loading />;
+  const navigate = useNavigate();
 
   const links = linksByRole[role] || linksByRole.tenant;
 
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 rounded-md px-4 py-2.5 font-medium transition-colors ${
-      isActive
-        ? "bg-amber-brand text-charcoal"
-        : "text-cream/80 hover:bg-cream/10 hover:text-cream"
-    }`;
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
-  const sidebarContent = (
-    <div className="flex h-full flex-col p-5">
-      <Logo light />
-
-      <div className="mt-8 flex items-center gap-3 rounded-lg bg-cream/10 p-3">
-        {user?.photoURL ? (
+  const sidebar = (
+    <div className="flex h-full flex-col bg-teal-dark text-cream">
+      <div className="px-6 py-5 border-b border-white/10">
+        <Link to="/" className="font-heading text-2xl font-bold">
+          Rent<span className="text-amber-brand">Nest</span>
+        </Link>
+        <div className="mt-4 flex items-center gap-3">
           <img
-            src={user.photoURL}
-            alt={user.displayName || "Profile"}
-            className="h-11 w-11 rounded-full border-2 border-amber-brand object-cover"
+            src={user?.photoURL || "https://i.ibb.co/placeholder/avatar.png"}
+            alt="profile"
+            className="h-10 w-10 rounded-full object-cover bg-cream"
           />
-        ) : (
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-brand font-bold text-charcoal">
-            {(user?.displayName || user?.email || "?").charAt(0).toUpperCase()}
-          </span>
-        )}
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">
-            {user?.displayName || "User"}
-          </p>
-          <span className="mt-0.5 inline-block rounded-full bg-amber-brand px-2 py-0.5 text-xs font-medium capitalize text-charcoal">
-            {role}
-          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">{user?.displayName}</p>
+            <span className="inline-block rounded-full bg-amber-brand px-2 py-0.5 text-xs font-semibold capitalize text-charcoal">
+              {roleLoading ? "..." : role}
+            </span>
+          </div>
         </div>
       </div>
 
-      <nav className="mt-8 flex flex-col gap-1">
-        {links.map(({ to, label, icon: Icon }) => (
-          <NavLink key={to} to={to} className={linkClass} onClick={closeMenu}>
+      <nav className="flex-1 space-y-1 px-3 py-4">
+        {links.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            onClick={() => setOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                isActive
+                  ? "bg-amber-brand text-charcoal"
+                  : "hover:bg-white/10"
+              }`
+            }
+          >
             <Icon /> {label}
           </NavLink>
         ))}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-1 border-t border-cream/15 pt-4">
+      <div className="space-y-1 border-t border-white/10 px-3 py-4">
         <Link
           to="/"
-          onClick={closeMenu}
-          className="flex items-center gap-3 rounded-md px-4 py-2.5 font-medium text-cream/80 transition-colors hover:bg-cream/10 hover:text-cream"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-white/10"
         >
-          <FaHome /> Back to home
+          <FaHome /> Back to Home
         </Link>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 rounded-md px-4 py-2.5 text-left font-medium text-cream/80 transition-colors hover:bg-cream/10 hover:text-cream"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-white/10"
         >
           <FaSignOutAlt /> Logout
         </button>
@@ -106,41 +107,42 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-cream">
+    <div className="min-h-screen bg-cream">
+      <Toaster position="top-right" />
+
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 bg-teal-dark text-cream lg:sticky lg:top-0 lg:block lg:h-screen">
-        {sidebarContent}
-      </aside>
+      <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">{sidebar}</aside>
 
       {/* Mobile drawer */}
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-charcoal/60" onClick={closeMenu} />
-          <aside className="relative h-full w-64 bg-teal-dark text-cream">
-            {sidebarContent}
-          </aside>
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setOpen(false)}
+          />
+          <aside className="absolute inset-y-0 left-0 w-64">{sidebar}</aside>
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar */}
-        <header className="flex items-center justify-between border-b border-charcoal/10 bg-white px-4 py-3 lg:hidden">
-          <Logo />
+      <div className="lg:ml-64">
+        <header className="flex items-center justify-between bg-white px-4 py-3 shadow-sm lg:hidden">
           <button
             onClick={() => setOpen(!open)}
+            className="text-xl text-teal-brand"
             aria-label="Toggle menu"
-            className="text-2xl text-teal-brand"
           >
             {open ? <FaTimes /> : <FaBars />}
           </button>
+          <span className="font-heading text-lg font-bold text-teal-brand">
+            Dashboard
+          </span>
+          <span className="w-5" />
         </header>
 
-        <main className="flex-1 p-4 md:p-8">
+        <main className="p-4 md:p-8">
           <Outlet />
         </main>
       </div>
-
-      <Toaster position="top-center" />
     </div>
   );
 };
