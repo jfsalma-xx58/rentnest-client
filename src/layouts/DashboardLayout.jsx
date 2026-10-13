@@ -6,6 +6,8 @@ import {
   FaTimes,
   FaHome,
   FaUser,
+  FaUsers,
+  FaExchangeAlt,
   FaCalendarCheck,
   FaHeart,
   FaPlusCircle,
@@ -36,6 +38,12 @@ const linksByRole = {
   ],
   admin: [
     { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
+    { to: "/dashboard/all-users", label: "All Users", icon: FaUsers },
+    {
+      to: "/dashboard/transactions",
+      label: "Transactions",
+      icon: FaExchangeAlt,
+    },
     { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
   ],
 };
