@@ -10,6 +10,7 @@ import {
   FaHeart,
   FaPlusCircle,
   FaBuilding,
+  FaClipboardList,
   FaSignOutAlt,
 } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
@@ -26,6 +27,11 @@ const linksByRole = {
     { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
     { to: "/dashboard/add-property", label: "Add Property", icon: FaPlusCircle },
     { to: "/dashboard/my-properties", label: "My Properties", icon: FaBuilding },
+    {
+      to: "/dashboard/booking-requests",
+      label: "Booking Requests",
+      icon: FaClipboardList,
+    },
     { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
   ],
   admin: [
