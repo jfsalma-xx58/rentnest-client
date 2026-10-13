@@ -40,6 +40,16 @@ const linksByRole = {
     { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
     { to: "/dashboard/all-users", label: "All Users", icon: FaUsers },
     {
+      to: "/dashboard/all-properties",
+      label: "All Properties",
+      icon: FaBuilding,
+    },
+    {
+      to: "/dashboard/all-bookings",
+      label: "All Bookings",
+      icon: FaCalendarCheck,
+    },
+    {
       to: "/dashboard/transactions",
       label: "Transactions",
       icon: FaExchangeAlt,
