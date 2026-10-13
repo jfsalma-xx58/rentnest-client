@@ -14,6 +14,8 @@ import MyBookings from "../pages/dashboard/MyBookings";
 import Favorites from "../pages/dashboard/Favorites";
 import Profile from "../pages/dashboard/Profile";
 import AddProperty from "../pages/dashboard/AddProperty";
+import MyProperties from "../pages/dashboard/MyProperties";
+import EditProperty from "../pages/dashboard/EditProperty";
 import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
@@ -66,6 +68,8 @@ export const router = createBrowserRouter([
       { path: "favorites", element: <Favorites /> },
       { path: "profile", element: <Profile /> },
       { path: "add-property", element: <AddProperty /> },
+      { path: "my-properties", element: <MyProperties /> },
+      { path: "my-properties/edit/:id", element: <EditProperty /> },
     ],
   },
 ]);
