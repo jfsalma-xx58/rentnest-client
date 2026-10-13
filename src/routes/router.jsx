@@ -19,6 +19,9 @@ import EditProperty from "../pages/dashboard/EditProperty";
 import BookingRequests from "../pages/dashboard/BookingRequests";
 import AllUsers from "../pages/dashboard/AllUsers";
 import Transactions from "../pages/dashboard/Transactions";
+import AdminProperties from "../pages/dashboard/AdminProperties";
+import AdminEditProperty from "../pages/dashboard/AdminEditProperty";
+import AllBookings from "../pages/dashboard/AllBookings";
 import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
@@ -76,6 +79,9 @@ export const router = createBrowserRouter([
       { path: "booking-requests", element: <BookingRequests /> },
       { path: "all-users", element: <AllUsers /> },
       { path: "transactions", element: <Transactions /> },
+      { path: "all-properties", element: <AdminProperties /> },
+      { path: "all-properties/edit/:id", element: <AdminEditProperty /> },
+      { path: "all-bookings", element: <AllBookings /> },
     ],
   },
 ]);
