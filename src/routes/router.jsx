@@ -16,6 +16,7 @@ import Profile from "../pages/dashboard/Profile";
 import AddProperty from "../pages/dashboard/AddProperty";
 import MyProperties from "../pages/dashboard/MyProperties";
 import EditProperty from "../pages/dashboard/EditProperty";
+import BookingRequests from "../pages/dashboard/BookingRequests";
 import PrivateRoute from "./PrivateRoute";
 
 export const router = createBrowserRouter([
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
       { path: "add-property", element: <AddProperty /> },
       { path: "my-properties", element: <MyProperties /> },
       { path: "my-properties/edit/:id", element: <EditProperty /> },
+      { path: "booking-requests", element: <BookingRequests /> },
     ],
   },
 ]);
