@@ -8,6 +8,12 @@ const pageButton =
   "text-teal-brand hover:bg-teal-brand hover:text-cream " +
   "disabled:cursor-not-allowed disabled:opacity-40";
 
+const formatBdt = (value) =>
+  `৳${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const Transactions = () => {
   const axiosSecure = useAxiosSecure();
   const [page, setPage] = useState(1);
@@ -26,7 +32,19 @@ const Transactions = () => {
     axiosSecure
       .get("/admin/transactions", { params: { page, limit: PAGE_SIZE } })
       .then((res) => {
-        if (active) setData(res.data);
+        if (!active) return;
+
+        // The server may send a plain list or an already-paged object.
+        if (Array.isArray(res.data)) {
+          const start = (page - 1) * PAGE_SIZE;
+          setData({
+            transactions: res.data.slice(start, start + PAGE_SIZE),
+            total: res.data.length,
+            totalPages: Math.max(1, Math.ceil(res.data.length / PAGE_SIZE)),
+          });
+        } else {
+          setData(res.data);
+        }
       })
       .catch(() => {
         if (active) setError(true);
@@ -77,7 +95,7 @@ const Transactions = () => {
                   <th className="py-3 pr-4 font-semibold">Property</th>
                   <th className="py-3 pr-4 font-semibold">Tenant</th>
                   <th className="py-3 pr-4 font-semibold">Owner</th>
-                  <th className="py-3 pr-4 font-semibold">Amount</th>
+                  <th className="py-3 pr-4 font-semibold">Fee (BDT)</th>
                   <th className="py-3 font-semibold">Date</th>
                 </tr>
               </thead>
@@ -100,7 +118,12 @@ const Transactions = () => {
                       {item.ownerName}
                     </td>
                     <td className="py-3 pr-4 font-semibold text-charcoal">
-                      ${Number(item.amount).toFixed(2)}
+                      {formatBdt(item.amount)}
+                      {item.chargedAmount > 0 && (
+                        <span className="block text-xs font-normal text-charcoal/60">
+                          ${Number(item.chargedAmount).toFixed(2)} USD charged
+                        </span>
+                      )}
                     </td>
                     <td className="py-3 text-charcoal">
                       {formatDate(item.date)}

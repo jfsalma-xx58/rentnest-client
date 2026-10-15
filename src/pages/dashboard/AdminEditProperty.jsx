@@ -6,6 +6,13 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 const propertyTypes = ["Apartment", "House", "Villa", "Studio", "Room"];
 const rentTypes = ["Monthly", "Weekly", "Daily"];
 
+const BDT_PER_USD = 123.75;
+
+const formatBdtRent = (rentUsd) =>
+  `৳${new Intl.NumberFormat("en-BD", {
+    maximumFractionDigits: 0,
+  }).format(Number(rentUsd) * BDT_PER_USD)}`;
+
 const inputClass =
   "w-full rounded-md border border-charcoal/15 bg-white px-3 py-2.5 " +
   "text-charcoal outline-none focus:border-teal-brand";
@@ -23,6 +30,7 @@ const AdminEditProperty = () => {
   const { id } = useParams();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -30,11 +38,14 @@ const AdminEditProperty = () => {
 
   useEffect(() => {
     let active = true;
+
     axiosSecure
       .get(`/admin/properties/${id}`)
       .then((res) => {
         if (!active) return;
+
         const p = res.data;
+
         setForm({
           title: p.title || "",
           description: p.description || "",
@@ -56,12 +67,20 @@ const AdminEditProperty = () => {
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
   }, [axiosSecure, id]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,11 +89,15 @@ const AdminEditProperty = () => {
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean);
+
     if (images.length === 0) {
       return toast.error("Add at least one image link");
     }
+
     if (images.some((url) => !/^https?:\/\//i.test(url))) {
-      return toast.error("Each image link must start with http:// or https://");
+      return toast.error(
+        "Each image link must start with http:// or https://"
+      );
     }
 
     const amenities = form.amenities
@@ -84,6 +107,7 @@ const AdminEditProperty = () => {
 
     try {
       setSubmitting(true);
+
       await axiosSecure.put(`/admin/properties/${id}`, {
         title: form.title,
         description: form.description,
@@ -98,11 +122,13 @@ const AdminEditProperty = () => {
         images,
         extraFeatures: form.extraFeatures,
       });
+
       toast.success("Property updated");
       navigate("/dashboard/all-properties");
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Could not update. Please try again."
+        error.response?.data?.message ||
+          "Could not update. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -117,6 +143,7 @@ const AdminEditProperty = () => {
     return (
       <div className="rounded-xl bg-white p-6 text-center shadow-sm">
         <p className="text-charcoal/70">Property not found.</p>
+
         <Link
           to="/dashboard/all-properties"
           className="mt-4 inline-block rounded-md bg-amber-brand px-5 py-2 font-medium text-charcoal hover:bg-amber-deep"
@@ -132,11 +159,15 @@ const AdminEditProperty = () => {
       <h1 className="font-heading text-2xl font-bold text-teal-brand">
         Update Property
       </h1>
+
       <p className="mt-1 text-sm text-charcoal/70">
         Editing does not change the property's status or owner.
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-6 grid gap-5 md:grid-cols-2">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 grid gap-5 md:grid-cols-2"
+      >
         <div className="md:col-span-2">
           <Field label="Property title">
             <input
@@ -192,11 +223,26 @@ const AdminEditProperty = () => {
             type="number"
             name="rent"
             min="1"
+            step="any"
             value={form.rent}
             onChange={handleChange}
             required
             className={inputClass}
           />
+
+          <p className="mt-2 text-xs text-charcoal/60">
+            BDT equivalent:{" "}
+            <span className="font-semibold text-teal-brand">
+              {form.rent !== "" && Number(form.rent) > 0
+                ? formatBdtRent(form.rent)
+                : "—"}
+            </span>
+          </p>
+
+          <p className="mt-1 text-xs text-charcoal/50">
+            Conversion rate: 1 USD = ৳123.75. The property rent is saved in
+            USD.
+          </p>
         </Field>
 
         <Field label="Rent type">
@@ -292,6 +338,7 @@ const AdminEditProperty = () => {
           >
             {submitting ? "Saving..." : "Save Changes"}
           </button>
+
           <Link
             to="/dashboard/all-properties"
             className="rounded-md border border-teal-brand px-8 py-3 font-medium text-teal-brand hover:bg-teal-brand hover:text-cream"

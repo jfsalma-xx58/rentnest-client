@@ -8,6 +8,12 @@ import CheckoutForm from "../components/CheckoutForm";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
+const formatBdt = (value) =>
+  `৳${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const PaymentPage = () => {
   const { id } = useParams();
   const axiosSecure = useAxiosSecure();
@@ -22,7 +28,8 @@ const PaymentPage = () => {
 
   const [property, setProperty] = useState(null);
   const [clientSecret, setClientSecret] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(0); // fee in BDT
+  const [chargedAmount, setChargedAmount] = useState(0); // Stripe charge in USD
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -36,6 +43,7 @@ const PaymentPage = () => {
         setProperty(propertyRes.data);
         setClientSecret(intentRes.data.clientSecret);
         setAmount(intentRes.data.amount);
+        setChargedAmount(intentRes.data.chargedAmount);
       })
       .catch((err) => {
         setError(err.response?.data?.message || "Could not start the payment.");
@@ -79,7 +87,7 @@ const PaymentPage = () => {
 
         <div className="mt-5 flex items-center justify-between border-t border-charcoal/10 pt-4">
           <span className="font-medium">Reservation fee (10% of rent)</span>
-          <span className="text-2xl font-bold text-charcoal">${amount}</span>
+          <span className="text-2xl font-bold text-charcoal">{formatBdt(amount)}</span>
         </div>
 
         <Elements
@@ -89,7 +97,12 @@ const PaymentPage = () => {
             appearance: { theme: "stripe", variables: { colorPrimary: "#0F5257" } },
           }}
         >
-          <CheckoutForm booking={booking} property={property} amount={amount} />
+          <CheckoutForm
+            booking={booking}
+            property={property}
+            amount={amount}
+            chargedAmount={chargedAmount}
+          />
         </Elements>
 
         <p className="mt-4 text-center text-xs text-charcoal/60">

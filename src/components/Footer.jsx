@@ -1,14 +1,7 @@
 import { Link } from "react-router-dom";
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaGithub,
-  FaMapMarkerAlt,
-  FaPhoneAlt,
-  FaEnvelope,
-} from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 import Logo from "./Logo";
 import { siteConfig } from "../config/siteConfig";
 
@@ -21,11 +14,10 @@ const contact = {
 };
 
 const socials = [
-  { label: "X", icon: FaXTwitter, url: "https://x.com" },
-  { label: "GitHub", icon: FaGithub, url: "https://github.com/jfsalma-xx58" },
-  { label: "Facebook", icon: FaFacebookF, url: "" },
-  { label: "Instagram", icon: FaInstagram, url: "" },
-  { label: "LinkedIn", icon: FaLinkedinIn, url: "" },
+  { label: "Instagram", icon: FaInstagram, url: "https://instagram.com/" },
+  { label: "X", icon: FaXTwitter, url: "https://x.com/" },
+  { label: "Facebook", icon: FaFacebookF, url: "https://facebook.com/" },
+  { label: "LinkedIn", icon: FaLinkedinIn, url: "https://linkedin.com/" },
 ];
 
 const socialClass =
@@ -110,20 +102,19 @@ const Footer = () => {
             Follow us
           </h3>
           <div className="flex flex-wrap gap-3">
-            {socials
-              .filter((item) => item.url)
-              .map(({ label, icon: Icon, url }) => (
-                <a
-                  key={label}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={label}
-                  className={socialClass}
-                >
-                  <Icon />
-                </a>
-              ))}
+            {socials.map(({ label, icon: Icon, url }) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                title={label}
+                className={socialClass}
+              >
+                <Icon />
+              </a>
+            ))}
           </div>
         </div>
       </div>

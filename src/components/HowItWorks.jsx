@@ -1,4 +1,5 @@
 import { FaSearch, FaCalendarCheck, FaKey } from "react-icons/fa";
+import Reveal from "./Reveal";
 
 const steps = [
   {
@@ -21,22 +22,30 @@ const steps = [
 const HowItWorks = () => (
   <section className="bg-teal-dark py-16 text-cream">
     <div className="mx-auto max-w-7xl px-4">
-      <h2 className="text-center font-heading text-3xl font-bold md:text-4xl">
-        How It Works
-      </h2>
+      <Reveal>
+        <h2 className="text-center font-heading text-3xl font-bold md:text-4xl">
+          How It Works
+        </h2>
+      </Reveal>
 
       <div className="mt-10 grid gap-8 md:grid-cols-3">
         {steps.map(({ icon: Icon, title, text }, index) => (
-          <div key={title} className="text-center">
-            <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-brand text-2xl text-charcoal">
-              <Icon />
-              <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-cream text-sm font-bold text-teal-dark">
-                {index + 1}
-              </span>
+          <Reveal key={title} delay={index * 0.15}>
+            <div className="text-center">
+              <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-brand text-2xl text-charcoal">
+                <Icon />
+                <span className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-cream text-sm font-bold text-teal-dark">
+                  {index + 1}
+                </span>
+              </div>
+              <h3 className="mt-5 font-heading text-xl font-semibold">
+                {title}
+              </h3>
+              <p className="mx-auto mt-2 max-w-xs text-sm text-cream/80">
+                {text}
+              </p>
             </div>
-            <h3 className="mt-5 font-heading text-xl font-semibold">{title}</h3>
-            <p className="mx-auto mt-2 max-w-xs text-sm text-cream/80">{text}</p>
-          </div>
+          </Reveal>
         ))}
       </div>
     </div>

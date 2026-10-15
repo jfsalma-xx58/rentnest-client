@@ -17,18 +17,32 @@ import {
 } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 import useRole from "../hooks/useRole";
+import ScrollToTop from "../components/ScrollToTop";
 
 const linksByRole = {
   tenant: [
     { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
     { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
-    { to: "/dashboard/my-bookings", label: "My Bookings", icon: FaCalendarCheck },
+    {
+      to: "/dashboard/my-bookings",
+      label: "My Bookings",
+      icon: FaCalendarCheck,
+    },
     { to: "/dashboard/favorites", label: "Favorites", icon: FaHeart },
   ],
+
   owner: [
     { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
-    { to: "/dashboard/add-property", label: "Add Property", icon: FaPlusCircle },
-    { to: "/dashboard/my-properties", label: "My Properties", icon: FaBuilding },
+    {
+      to: "/dashboard/add-property",
+      label: "Add Property",
+      icon: FaPlusCircle,
+    },
+    {
+      to: "/dashboard/my-properties",
+      label: "My Properties",
+      icon: FaBuilding,
+    },
     {
       to: "/dashboard/booking-requests",
       label: "Booking Requests",
@@ -36,6 +50,7 @@ const linksByRole = {
     },
     { to: "/dashboard/profile", label: "My Profile", icon: FaUser },
   ],
+
   admin: [
     { to: "/dashboard", label: "Overview", icon: FaHome, end: true },
     { to: "/dashboard/all-users", label: "All Users", icon: FaUsers },
@@ -78,18 +93,26 @@ const DashboardLayout = () => {
 
   const sidebar = (
     <div className="flex h-full flex-col bg-teal-dark text-cream">
-      <div className="px-6 py-5 border-b border-white/10">
+      <div className="border-b border-white/10 px-6 py-5">
         <Link to="/" className="font-heading text-2xl font-bold">
           Rent<span className="text-amber-brand">Nest</span>
         </Link>
+
         <div className="mt-4 flex items-center gap-3">
           <img
-            src={user?.photoURL || "https://i.ibb.co/placeholder/avatar.png"}
-            alt="profile"
-            className="h-10 w-10 rounded-full object-cover bg-cream"
+            src={
+              user?.photoURL ||
+              "https://i.ibb.co/placeholder/avatar.png"
+            }
+            alt="Profile"
+            className="h-10 w-10 rounded-full bg-cream object-cover"
           />
+
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">{user?.displayName}</p>
+            <p className="truncate text-sm font-semibold">
+              {user?.displayName}
+            </p>
+
             <span className="inline-block rounded-full bg-amber-brand px-2 py-0.5 text-xs font-semibold capitalize text-charcoal">
               {roleLoading ? "..." : role}
             </span>
@@ -97,7 +120,7 @@ const DashboardLayout = () => {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {links.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
@@ -112,7 +135,8 @@ const DashboardLayout = () => {
               }`
             }
           >
-            <Icon /> {label}
+            <Icon />
+            {label}
           </NavLink>
         ))}
       </nav>
@@ -120,15 +144,20 @@ const DashboardLayout = () => {
       <div className="space-y-1 border-t border-white/10 px-3 py-4">
         <Link
           to="/"
+          onClick={() => setOpen(false)}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-white/10"
         >
-          <FaHome /> Back to Home
+          <FaHome />
+          Back to Home
         </Link>
+
         <button
+          type="button"
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-white/10"
         >
-          <FaSignOutAlt /> Logout
+          <FaSignOutAlt />
+          Logout
         </button>
       </div>
     </div>
@@ -136,34 +165,49 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-cream">
+      {/* Reset scroll position when the dashboard route changes */}
+      <ScrollToTop />
+
       <Toaster position="top-right" />
 
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">{sidebar}</aside>
+      <aside className="fixed inset-y-0 left-0 hidden w-64 lg:block">
+        {sidebar}
+      </aside>
 
       {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50"
+          <button
+            type="button"
+            aria-label="Close navigation menu"
+            className="absolute inset-0 h-full w-full cursor-default bg-black/50"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 w-64">{sidebar}</aside>
+
+          <aside className="absolute inset-y-0 left-0 w-64">
+            {sidebar}
+          </aside>
         </div>
       )}
 
+      {/* Dashboard content */}
       <div className="lg:ml-64">
         <header className="flex items-center justify-between bg-white px-4 py-3 shadow-sm lg:hidden">
           <button
-            onClick={() => setOpen(!open)}
+            type="button"
+            onClick={() => setOpen((previous) => !previous)}
             className="text-xl text-teal-brand"
-            aria-label="Toggle menu"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
           >
             {open ? <FaTimes /> : <FaBars />}
           </button>
+
           <span className="font-heading text-lg font-bold text-teal-brand">
             Dashboard
           </span>
+
           <span className="w-5" />
         </header>
 

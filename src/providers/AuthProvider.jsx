@@ -17,76 +17,129 @@ const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const axiosPublic = useAxiosPublic();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Save the user in our database (new users get the tenant role on the server)
-  const saveUser = (info) => axiosPublic.post("/users", info);
+  // Save the RentNest profile.
+  // The backend must preserve the role of existing accounts.
+  const saveUser = async (info) => {
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error("No Firebase user is signed in.");
 
-  // Ask our server for a JWT and keep it in the browser
+  const firebaseIdToken = await currentUser.getIdToken();
+
+  const response = await axiosPublic.post("/users", info, {
+    headers: { Authorization: `Bearer ${firebaseIdToken}` },
+  });
+  return response.data;
+};
+
+  // Obtain a JWT for an existing RentNest profile.
   const getToken = async (email) => {
-    const res = await axiosPublic.post("/jwt", { email });
-    localStorage.setItem("access-token", res.data.token);
-  };
+  const currentUser = auth.currentUser;
 
-  const registerUser = (email, password) => {
+  if (!currentUser) {
+    throw new Error("No Firebase user is signed in.");
+  }
+
+  // Get a fresh Firebase ID token to prove the user's identity.
+  const firebaseIdToken = await currentUser.getIdToken();
+
+  const response = await axiosPublic.post(
+    "/jwt",
+    { email },
+    {
+      headers: {
+        Authorization: `Bearer ${firebaseIdToken}`,
+      },
+    }
+  );
+
+  if (!response.data?.token) {
+    throw new Error("The server did not return an authentication token.");
+  }
+
+  // Store the RentNest backend token for protected API requests.
+  localStorage.setItem("access-token", response.data.token);
+
+  return response.data;
+};
+
+  // Create a Firebase email/password account.
+  const registerUser = async (email, password) => {
     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
+
+    try {
+      return await createUserWithEmailAndPassword(auth, email, password);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Authenticate an existing email/password account.
+  // Do not create a database profile here: the login page handles that check.
   const loginUser = async (email, password) => {
     setLoading(true);
-    const result = await signInWithEmailAndPassword(auth, email, password);
-    await saveUser({
-      name: result.user.displayName,
-      email: result.user.email,
-      photo: result.user.photoURL,
-    });
-    await getToken(result.user.email);
-    return result;
+
+    try {
+      return await signInWithEmailAndPassword(auth, email, password);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Open Google authentication.
+  // The calling page decides whether a RentNest profile must be created.
   const googleLogin = async () => {
     setLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    await saveUser({
-      name: result.user.displayName,
-      email: result.user.email,
-      photo: result.user.photoURL,
-    });
-    await getToken(result.user.email);
-    return result;
+
+    try {
+      return await signInWithPopup(auth, googleProvider);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateUserProfile = (name, photo) => {
+  // Update the authenticated Firebase user's profile.
+  const updateUserProfile = async (name, photo) => {
+    if (!auth.currentUser) {
+      throw new Error("No authenticated user was found.");
+    }
+
     return updateProfile(auth.currentUser, {
       displayName: name,
-      photoURL: photo,
+      photoURL: photo || null,
     });
   };
 
-  const logout = () => {
+  // Sign out and clear the saved RentNest JWT.
+  const logout = async () => {
     setLoading(true);
     localStorage.removeItem("access-token");
-    return signOut(auth);
+
+    try {
+      await signOut(auth);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Track Firebase authentication state.
+  // Profile creation and token generation happen explicitly during
+  // registration or login, so a missing profile is not silently hidden.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser) {
-        try {
-          await getToken(currentUser.email);
-        } catch (error) {
-          // The user may not be saved yet during registration, which is fine
-        }
-      } else {
+
+      if (!currentUser) {
         localStorage.removeItem("access-token");
       }
+
       setLoading(false);
     });
-    return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return unsubscribe;
   }, []);
 
   const authInfo = {
@@ -103,7 +156,9 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={authInfo}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 

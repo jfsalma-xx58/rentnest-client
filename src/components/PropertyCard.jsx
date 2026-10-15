@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-import { FaMapMarkerAlt, FaBed, FaBath, FaRulerCombined } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaBed,
+  FaBath,
+  FaRulerCombined,
+} from "react-icons/fa";
+
+const BDT_PER_USD = 123.75;
 
 const PropertyCard = ({ property }) => {
   const {
@@ -15,7 +22,15 @@ const PropertyCard = ({ property }) => {
     images,
   } = property;
 
-  const periodLabel = { Monthly: "mo", Weekly: "wk", Daily: "day" }[rentType] || "mo";
+  const periodLabel =
+    { Monthly: "mo", Weekly: "wk", Daily: "day" }[rentType] || "mo";
+
+  // Existing database rent values are in USD.
+  const rentInBdt = Number(rent) * BDT_PER_USD;
+
+  const formattedRent = new Intl.NumberFormat("en-BD", {
+    maximumFractionDigits: 2,
+  }).format(rentInBdt);
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-xl border border-charcoal/10 bg-white shadow-sm transition-shadow hover:shadow-lg">
@@ -51,9 +66,12 @@ const PropertyCard = ({ property }) => {
 
         <div className="mt-auto flex items-center justify-between pt-5">
           <p className="text-lg font-bold text-charcoal">
-            ${rent}
-            <span className="text-sm font-normal text-charcoal/60">/{periodLabel}</span>
+            ৳{formattedRent}
+            <span className="text-sm font-normal text-charcoal/60">
+              /{periodLabel}
+            </span>
           </p>
+
           <Link
             to={`/properties/${_id}`}
             className="rounded-md bg-amber-brand px-4 py-2 text-sm font-medium text-charcoal transition-colors hover:bg-amber-deep"

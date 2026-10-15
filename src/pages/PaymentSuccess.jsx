@@ -1,6 +1,12 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { FaCheckCircle } from "react-icons/fa";
 
+const formatBdt = (value) =>
+  `৳${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
 const PaymentSuccess = () => {
   const { state } = useLocation();
 
@@ -17,7 +23,13 @@ const PaymentSuccess = () => {
 
       <div className="mt-6 rounded-xl border border-charcoal/10 bg-white p-5 text-left text-sm">
         <p>
-          <span className="font-medium">Amount paid:</span> ${state.amount}
+          <span className="font-medium">Amount paid:</span> {formatBdt(state.amount)}
+          {state.chargedAmount > 0 && (
+            <span className="text-charcoal/60">
+              {" "}
+              (${Number(state.chargedAmount).toFixed(2)} USD charged by Stripe)
+            </span>
+          )}
         </p>
         <p className="mt-2 break-all">
           <span className="font-medium">Transaction ID:</span> {state.transactionId}

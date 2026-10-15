@@ -4,7 +4,13 @@ import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import toast from "react-hot-toast";
 import useAxiosSecure from "../hooks/useAxiosSecure";
 
-const CheckoutForm = ({ booking, property, amount }) => {
+const formatBdt = (value) =>
+  `৳${Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const CheckoutForm = ({ booking, property, amount, chargedAmount }) => {
   const stripe = useStripe();
   const elements = useElements();
   const axiosSecure = useAxiosSecure();
@@ -45,7 +51,8 @@ const CheckoutForm = ({ booking, property, amount }) => {
           replace: true,
           state: {
             transactionId: res.data.transactionId,
-            amount: res.data.amount,
+            amount: res.data.amount, // fee in BDT
+            chargedAmount,
             title: property.title,
           },
         });
@@ -73,8 +80,15 @@ const CheckoutForm = ({ booking, property, amount }) => {
         disabled={!stripe || processing}
         className="w-full rounded-md bg-amber-brand px-5 py-3 font-medium text-charcoal transition-colors hover:bg-amber-deep disabled:opacity-60"
       >
-        {processing ? "Processing..." : `Pay $${amount}`}
+        {processing ? "Processing..." : `Pay ${formatBdt(amount)}`}
       </button>
+
+      {chargedAmount > 0 && (
+        <p className="text-center text-xs text-charcoal/60">
+          Your card is charged ${Number(chargedAmount).toFixed(2)} USD by Stripe,
+          the equivalent of {formatBdt(amount)}.
+        </p>
+      )}
     </form>
   );
 };

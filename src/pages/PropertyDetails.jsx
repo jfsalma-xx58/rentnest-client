@@ -15,9 +15,12 @@ import Loading from "../components/Loading";
 import BookingModal from "../components/BookingModal";
 import PropertyReviews from "../components/PropertyReviews";
 
+const BDT_PER_USD = 123.75;
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const axiosSecure = useAxiosSecure();
+
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -28,6 +31,8 @@ const PropertyDetails = () => {
 
   useEffect(() => {
     setLoading(true);
+    setNotFound(false);
+
     axiosSecure
       .get(`/properties/${id}`)
       .then((res) => setProperty(res.data))
@@ -38,19 +43,25 @@ const PropertyDetails = () => {
   useEffect(() => {
     axiosSecure
       .get(`/favorites/check/${id}`)
-      .then((res) => setFavoriteId(res.data.favorited ? res.data.favoriteId : null))
+      .then((res) =>
+        setFavoriteId(res.data.favorited ? res.data.favoriteId : null)
+      )
       .catch(() => setFavoriteId(null));
   }, [axiosSecure, id]);
 
   const handleFavorite = async () => {
     try {
       setFavBusy(true);
+
       if (favoriteId) {
         await axiosSecure.delete(`/favorites/${favoriteId}`);
         setFavoriteId(null);
         toast.success("Removed from favorites");
       } else {
-        const res = await axiosSecure.post("/favorites", { propertyId: id });
+        const res = await axiosSecure.post("/favorites", {
+          propertyId: id,
+        });
+
         setFavoriteId(res.data.favoriteId || null);
         toast.success("Added to favorites");
       }
@@ -66,10 +77,14 @@ const PropertyDetails = () => {
   if (notFound || !property) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center">
-        <h1 className="text-4xl font-bold text-teal-brand">Property not found</h1>
+        <h1 className="text-4xl font-bold text-teal-brand">
+          Property not found
+        </h1>
+
         <p className="mt-3 text-charcoal/70">
           This property may have been removed or the link is wrong.
         </p>
+
         <Link
           to="/properties"
           className="mt-6 inline-block rounded-md bg-amber-brand px-6 py-2 font-medium text-charcoal transition-colors hover:bg-amber-deep"
@@ -97,7 +112,17 @@ const PropertyDetails = () => {
     ownerEmail,
   } = property;
 
-  const periodLabel = { Monthly: "month", Weekly: "week", Daily: "day" }[rentType] || "month";
+  const periodLabel =
+    { Monthly: "month", Weekly: "week", Daily: "day" }[rentType] ||
+    "month";
+
+  // Existing property rents in MongoDB are stored in USD.
+  // Convert to BDT for display without changing the stored value.
+  const rentInBdt = Number(rent) * BDT_PER_USD;
+
+  const formattedRent = new Intl.NumberFormat("en-BD", {
+    maximumFractionDigits: 2,
+  }).format(rentInBdt);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
@@ -109,6 +134,7 @@ const PropertyDetails = () => {
             alt={title}
             className="h-80 w-full rounded-xl object-cover md:h-[420px]"
           />
+
           {images.length > 1 && (
             <div className="mt-4 grid grid-cols-4 gap-3">
               {images.map((img, index) => (
@@ -116,10 +142,16 @@ const PropertyDetails = () => {
                   key={index}
                   onClick={() => setActiveImage(index)}
                   className={`overflow-hidden rounded-lg border-2 ${
-                    index === activeImage ? "border-amber-brand" : "border-transparent"
+                    index === activeImage
+                      ? "border-amber-brand"
+                      : "border-transparent"
                   }`}
                 >
-                  <img src={img} alt="" className="h-20 w-full object-cover" />
+                  <img
+                    src={img}
+                    alt=""
+                    className="h-20 w-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -133,24 +165,37 @@ const PropertyDetails = () => {
               <span className="rounded-full bg-teal-brand px-3 py-1 text-xs font-medium text-cream">
                 {type}
               </span>
+
               <button
                 onClick={handleFavorite}
                 disabled={favBusy}
-                aria-label={favoriteId ? "Remove from favorites" : "Add to favorites"}
+                aria-label={
+                  favoriteId ? "Remove from favorites" : "Add to favorites"
+                }
                 className="flex items-center gap-2 rounded-full border border-teal-brand px-4 py-1.5 text-sm font-medium text-teal-brand transition-colors hover:bg-teal-brand hover:text-cream disabled:opacity-60"
               >
-                {favoriteId ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
+                {favoriteId ? (
+                  <FaHeart className="text-red-500" />
+                ) : (
+                  <FaRegHeart />
+                )}
+
                 {favoriteId ? "Saved" : "Save"}
               </button>
             </div>
 
-            <h1 className="mt-4 text-3xl font-bold text-teal-brand">{title}</h1>
+            <h1 className="mt-4 text-3xl font-bold text-teal-brand">
+              {title}
+            </h1>
+
             <p className="mt-2 flex items-center gap-2 text-charcoal/70">
-              <FaMapMarkerAlt className="text-amber-deep" /> {location}
+              <FaMapMarkerAlt className="text-amber-deep" />
+              {location}
             </p>
 
+            {/* Rent displayed in BDT */}
             <p className="mt-6 text-3xl font-bold text-charcoal">
-              ${rent}
+              ৳{formattedRent}
               <span className="text-base font-normal text-charcoal/60">
                 {" "}
                 / {periodLabel}
@@ -160,15 +205,23 @@ const PropertyDetails = () => {
             <div className="mt-6 grid grid-cols-3 gap-3 text-center">
               <div className="rounded-lg bg-cream p-3">
                 <FaBed className="mx-auto text-xl text-teal-brand" />
-                <p className="mt-1 text-sm font-medium">{bedrooms} Beds</p>
+                <p className="mt-1 text-sm font-medium">
+                  {bedrooms} Beds
+                </p>
               </div>
+
               <div className="rounded-lg bg-cream p-3">
                 <FaBath className="mx-auto text-xl text-teal-brand" />
-                <p className="mt-1 text-sm font-medium">{bathrooms} Baths</p>
+                <p className="mt-1 text-sm font-medium">
+                  {bathrooms} Baths
+                </p>
               </div>
+
               <div className="rounded-lg bg-cream p-3">
                 <FaRulerCombined className="mx-auto text-xl text-teal-brand" />
-                <p className="mt-1 text-sm font-medium">{size} sqft</p>
+                <p className="mt-1 text-sm font-medium">
+                  {size} sqft
+                </p>
               </div>
             </div>
 
@@ -191,25 +244,40 @@ const PropertyDetails = () => {
       {/* Description and amenities */}
       <div className="mt-12 grid gap-10 lg:grid-cols-5">
         <div className="lg:col-span-3">
-          <h2 className="text-2xl font-bold text-teal-brand">About this property</h2>
-          <p className="mt-3 leading-relaxed text-charcoal/80">{description}</p>
+          <h2 className="text-2xl font-bold text-teal-brand">
+            About this property
+          </h2>
+
+          <p className="mt-3 leading-relaxed text-charcoal/80">
+            {description}
+          </p>
 
           {extraFeatures && (
             <>
               <h3 className="mt-8 text-xl font-semibold text-teal-brand">
                 Extra features
               </h3>
-              <p className="mt-2 text-charcoal/80">{extraFeatures}</p>
+
+              <p className="mt-2 text-charcoal/80">
+                {extraFeatures}
+              </p>
             </>
           )}
         </div>
 
         <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold text-teal-brand">Amenities</h2>
+          <h2 className="text-2xl font-bold text-teal-brand">
+            Amenities
+          </h2>
+
           <ul className="mt-3 grid grid-cols-2 gap-3">
             {amenities.map((item) => (
-              <li key={item} className="flex items-center gap-2 text-charcoal/80">
-                <FaCheckCircle className="text-amber-deep" /> {item}
+              <li
+                key={item}
+                className="flex items-center gap-2 text-charcoal/80"
+              >
+                <FaCheckCircle className="text-amber-deep" />
+                {item}
               </li>
             ))}
           </ul>
@@ -219,7 +287,10 @@ const PropertyDetails = () => {
       <PropertyReviews propertyId={id} />
 
       {showBooking && (
-        <BookingModal property={property} onClose={() => setShowBooking(false)} />
+        <BookingModal
+          property={property}
+          onClose={() => setShowBooking(false)}
+        />
       )}
     </div>
   );
