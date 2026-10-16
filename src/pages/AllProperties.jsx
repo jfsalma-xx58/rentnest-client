@@ -132,7 +132,7 @@ const AllProperties = () => {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Min price</label>
+          <label className="mb-1 block text-sm font-medium">Min rent (BDT)</label>
           <input
             type="number"
             name="minPrice"
@@ -145,7 +145,7 @@ const AllProperties = () => {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium">Max price</label>
+          <label className="mb-1 block text-sm font-medium">Max rent (BDT)</label>
           <input
             type="number"
             name="maxPrice"

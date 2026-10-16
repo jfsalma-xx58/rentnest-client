@@ -8,8 +8,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { FaDollarSign, FaBuilding, FaCalendarCheck } from "react-icons/fa";
+import { FaBuilding, FaCalendarCheck } from "react-icons/fa";
+import { TbCurrencyTaka } from "react-icons/tb";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { formatBdt } from "../../utils/money";
 
 const cardClass =
   "flex items-center gap-4 rounded-xl bg-white p-6 shadow-sm";
@@ -72,13 +74,11 @@ const OwnerAnalytics = () => {
       </h1>
 
       <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {/* Earnings are saved in BDT by the server: no conversion here. */}
         <SummaryCard
-          icon={FaDollarSign}
+          icon={TbCurrencyTaka}
           label="Total Earnings"
-          value={`$${stats.totalEarnings.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
+          value={formatBdt(stats.totalEarnings)}
         />
         <SummaryCard
           icon={FaBuilding}
@@ -94,7 +94,7 @@ const OwnerAnalytics = () => {
 
       <div className="mt-8 rounded-xl bg-white p-6 shadow-sm">
         <h2 className="font-heading text-xl font-bold text-teal-brand">
-          Monthly Earnings
+          Monthly Earnings (BDT)
         </h2>
         <p className="mt-1 text-sm text-charcoal/70">
           Your earnings over the last 12 months.
@@ -105,8 +105,12 @@ const OwnerAnalytics = () => {
             <LineChart data={stats.monthlyEarnings}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1F2A2E20" />
               <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(value) => [`$${value}`, "Earnings"]} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickFormatter={(value) => `৳${Number(value).toLocaleString("en-US")}`}
+                width={80}
+              />
+              <Tooltip formatter={(value) => [formatBdt(value), "Earnings"]} />
               <Line
                 type="monotone"
                 dataKey="earnings"

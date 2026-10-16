@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { formatBdt, usdToBdt } from "../../utils/money";
 import useAuth from "../../hooks/useAuth";
 
 const propertyTypes = ["Apartment", "House", "Villa", "Studio", "Room"];
@@ -159,6 +160,11 @@ const AddProperty = () => {
             required
             className={inputClass}
           />
+          {Number(form.rent) > 0 && (
+            <p className="mt-1 text-xs text-charcoal/60">
+              Tenants will see this as {formatBdt(usdToBdt(form.rent))}.
+            </p>
+          )}
         </Field>
 
         <Field label="Rent type">

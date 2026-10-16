@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { formatBdt, usdToBdt } from "../../utils/money";
 
 const statusStyles = {
   pending: "bg-amber-brand/20 text-amber-deep",
@@ -122,7 +123,7 @@ const MyProperties = () => {
                   </td>
                   <td className="py-3 pr-4 text-charcoal">{property.type}</td>
                   <td className="py-3 pr-4 font-semibold text-charcoal">
-                    ${Number(property.rent).toLocaleString()}
+                    {formatBdt(usdToBdt(property.rent))}
                   </td>
                   <td className="py-3 pr-4">
                     <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { formatBdt } from "../../utils/money";
 
 const statusStyles = {
   pending: "bg-amber-brand/20 text-amber-deep",
@@ -115,7 +116,7 @@ const MyBookings = () => {
                     {formatDate(booking.createdAt)}
                   </td>
                   <td className="py-3 pr-4 font-semibold text-charcoal">
-                    ${Number(booking.amount).toFixed(2)}
+                    {formatBdt(booking.amount)}
                   </td>
                   <td className="py-3 pr-4">
                     <Badge value={booking.bookingStatus} />

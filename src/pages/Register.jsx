@@ -13,6 +13,7 @@ const Register = () => {
   const {
     user,
     registerUser,
+    loginUser,
     updateUserProfile,
     saveUser,
     getToken,
@@ -92,9 +93,22 @@ const Register = () => {
       setLoading(false);
 
       if (err.code === "auth/email-already-in-use") {
-        setError(
-          "This email is already registered. Please log in to your account."
-        );
+        // An earlier attempt may have created the sign-in account but not the
+        // RentNest profile. If the password is right, finish the profile now.
+        try {
+          setLoading(true);
+          await loginUser(email, password);
+          await updateUserProfile(name, photo || null);
+          await finishRegistration({ name, email, photo, role });
+          toast.success("Welcome to RentNest!");
+          navigate("/", { replace: true });
+          return;
+        } catch (retryError) {
+          setLoading(false);
+          setError(
+            "This email is already registered. Please log in to your account."
+          );
+        }
       } else if (err.code === "auth/invalid-email") {
         setError("Please enter a valid email address.");
       } else if (err.code === "auth/weak-password") {

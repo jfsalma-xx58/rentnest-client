@@ -37,7 +37,10 @@ const PaymentPage = () => {
 
     Promise.all([
       axiosSecure.get(`/properties/${id}`),
-      axiosSecure.post("/create-payment-intent", { propertyId: id }),
+      axiosSecure.post("/create-payment-intent", {
+        propertyId: id,
+        moveInDate: booking.moveInDate,
+      }),
     ])
       .then(([propertyRes, intentRes]) => {
         setProperty(propertyRes.data);
@@ -102,6 +105,7 @@ const PaymentPage = () => {
             property={property}
             amount={amount}
             chargedAmount={chargedAmount}
+            clientSecret={clientSecret}
           />
         </Elements>
 

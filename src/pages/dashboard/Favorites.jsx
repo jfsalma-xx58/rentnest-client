@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { FaTrash } from "react-icons/fa";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { formatBdt, usdToBdt } from "../../utils/money";
 
 const Favorites = () => {
   const axiosSecure = useAxiosSecure();
@@ -107,7 +108,7 @@ const Favorites = () => {
                     {item.type}
                   </td>
                   <td className="py-3 pr-4 font-semibold text-charcoal">
-                    ${Number(item.rent).toLocaleString()}
+                    {formatBdt(usdToBdt(item.rent))}
                     {item.rentType ? ` / ${item.rentType}` : ""}
                   </td>
                   <td className="py-3">

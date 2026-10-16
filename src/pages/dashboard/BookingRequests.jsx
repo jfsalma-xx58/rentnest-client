@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { formatBdt } from "../../utils/money";
 
 const statusStyles = {
   pending: "bg-amber-brand/20 text-amber-deep",
@@ -95,7 +96,7 @@ const BookingRequests = () => {
               <tr className="border-b border-charcoal/10 text-charcoal/70">
                 <th className="py-3 pr-4 font-semibold">Tenant</th>
                 <th className="py-3 pr-4 font-semibold">Property</th>
-                <th className="py-3 pr-4 font-semibold">Booking Amount</th>
+                <th className="py-3 pr-4 font-semibold">Reservation Fee</th>
                 <th className="py-3 pr-4 font-semibold">Status</th>
                 <th className="py-3 font-semibold">Actions</th>
               </tr>
@@ -136,7 +137,7 @@ const BookingRequests = () => {
                     </div>
                   </td>
                   <td className="py-3 pr-4 font-semibold text-charcoal">
-                    ${Number(booking.amount).toFixed(2)}
+                    {formatBdt(booking.amount)}
                   </td>
                   <td className="py-3 pr-4">
                     <span

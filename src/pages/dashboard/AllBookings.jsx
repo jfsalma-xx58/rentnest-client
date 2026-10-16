@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 
-const BDT_PER_USD = 123.75;
-
 const statusStyles = {
   pending: "bg-amber-brand/20 text-amber-deep",
   approved: "bg-green-100 text-green-700",
@@ -24,23 +22,25 @@ const Badge = ({ value }) => {
   );
 };
 
-const formatBdtAmount = (amountUsd) => {
-  const amount = Number(amountUsd);
+// The reservation fee is already saved in BDT, so it is not converted.
+const formatBdtAmount = (amountBdt) => {
+  const amount = Number(amountBdt);
 
   if (!Number.isFinite(amount)) return "—";
 
   return `৳${new Intl.NumberFormat("en-BD", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount * BDT_PER_USD)}`;
+  }).format(amount)}`;
 };
 
+// What Stripe actually charged, in USD (saved with each booking).
 const formatUsdAmount = (amountUsd) => {
   const amount = Number(amountUsd);
 
-  if (!Number.isFinite(amount)) return "—";
+  if (!Number.isFinite(amount) || amount <= 0) return "";
 
-  return `$${amount.toFixed(2)}`;
+  return `$${amount.toFixed(2)} USD charged`;
 };
 
 const formatDate = (date) => {
@@ -202,9 +202,11 @@ const AllBookings = () => {
                     <p className="font-semibold text-teal-brand">
                       {formatBdtAmount(booking.amount)}
                     </p>
-                    <p className="mt-1 text-xs text-charcoal/60">
-                      {formatUsdAmount(booking.amount)} USD
-                    </p>
+                    {formatUsdAmount(booking.chargedAmount) && (
+                      <p className="mt-1 text-xs text-charcoal/60">
+                        {formatUsdAmount(booking.chargedAmount)}
+                      </p>
+                    )}
                   </td>
 
                   <td className="py-3 pr-4">
@@ -220,8 +222,8 @@ const AllBookings = () => {
           </table>
 
           <p className="mt-4 text-xs text-charcoal/50">
-            Display conversion: 1 USD = ৳123.75. The BDT amounts are
-            estimates; original USD amounts are retained.
+            Fees are saved in BDT. The USD figure is the amount Stripe
+            charged the card.
           </p>
         </div>
       )}
