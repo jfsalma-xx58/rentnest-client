@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FaStar,
   FaArrowLeft,
@@ -6,47 +6,44 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import Reveal from "./Reveal";
-
-const reviews = [
-  {
-    name: "Nusrat Jahan",
-    role: "Tenant",
-    location: "Dhaka, Bangladesh",
-    rating: 5,
-    text: "Booking was quick and the reservation fee was clear from the start. I moved in without any surprises.",
-  },
-  {
-    name: "Tanvir Ahmed",
-    role: "Tenant",
-    location: "Sylhet, Bangladesh",
-    rating: 5,
-    text: "The filters saved me hours. I found a flat in my budget in one evening.",
-  },
-  {
-    name: "Mehnaz Rahman",
-    role: "Property Owner",
-    location: "Dhaka, Bangladesh",
-    rating: 4,
-    text: "Listing my apartment was simple, and the booking requests arrived in one place.",
-  },
-  {
-    name: "Imran Hossain",
-    role: "Tenant",
-    location: "Chattogram, Bangladesh",
-    rating: 5,
-    text: "Everything was in one dashboard: my bookings, favorites and payments.",
-  },
-  {
-    name: "Farhan Ahmed",
-    role: "Tenant",
-    location: "Cox's Bazar, Bangladesh",
-    rating: 5,
-    text: "The property details made comparing options easier. I could explore different rentals without feeling overwhelmed.",
-  },
-];
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const CustomerReviews = () => {
   const reviewsContainerRef = useRef(null);
+  const axiosPublic = useAxiosPublic();
+  const [reviews, setReviews] = useState([]);
+
+  // Real reviews from the database (rated 4 or 5 stars, up to four).
+  useEffect(() => {
+    let active = true;
+
+    axiosPublic
+      .get("/reviews/featured")
+      .then((res) => {
+        if (!active) return;
+
+        const list = Array.isArray(res.data) ? res.data : [];
+
+        // Same field names the cards already use, so the design is unchanged.
+        setReviews(
+          list.map((item) => ({
+            id: item._id,
+            name: item.reviewerName || "Tenant",
+            role: "Tenant",
+            location: "RentNest member",
+            rating: item.rating,
+            text: item.comment,
+          }))
+        );
+      })
+      .catch(() => {
+        if (active) setReviews([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [axiosPublic]);
 
   const scrollReviews = (direction) => {
     const container = reviewsContainerRef.current;
@@ -150,9 +147,15 @@ const CustomerReviews = () => {
             className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             aria-label="Customer reviews"
           >
+            {reviews.length === 0 && (
+              <p className="text-sm text-cream/70">
+                No reviews yet. Be the first to share your experience.
+              </p>
+            )}
+
             {reviews.map((review, index) => (
               <Reveal
-                key={review.name}
+                key={review.id}
                 delay={index * 0.08}
                 className="h-full w-full shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] xl:w-[calc((100%-2rem)/3)]"
               >
