@@ -4,6 +4,7 @@ import { getAdditionalUserInfo } from "firebase/auth";
 import { FaEye, FaEyeSlash, FaGoogle } from "react-icons/fa";
 import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const inputClass =
   "w-full rounded-md border border-charcoal/15 bg-white px-4 py-2.5 outline-none focus:border-teal-brand";
@@ -14,6 +15,31 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
+  const axiosSecure = useAxiosSecure();
+
+  // After a successful login: owners and admins land on their dashboard,
+  // tenants go back to where they came from (the home page by default).
+  // Someone sent here from a protected page still returns to that page.
+  const goAfterLogin = async (email) => {
+    if (from === "/") {
+      try {
+        const res = await axiosSecure.get(
+          `/users/role/${encodeURIComponent(email.trim().toLowerCase())}`
+        );
+        const role = res.data?.role;
+
+        if (role === "owner" || role === "admin") {
+          navigate("/dashboard", { replace: true });
+          return;
+        }
+      } catch (roleError) {
+        // If the role can't be read, fall back to the normal redirect.
+        console.error("Could not read role after login:", roleError.message);
+      }
+    }
+
+    navigate(from, { replace: true });
+  };
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -35,7 +61,7 @@ const Login = () => {
       await getToken(email);
 
       toast.success("Welcome back!");
-      navigate(from, { replace: true });
+      await goAfterLogin(email);
     } catch (err) {
       setLoading(false);
 
@@ -140,7 +166,7 @@ const Login = () => {
 
       // Both Firebase authentication and RentNest JWT setup succeeded.
       toast.success("Welcome back!");
-      navigate(from, { replace: true });
+      await goAfterLogin(user.email);
     } catch (err) {
       console.error("Google login flow failed:", {
         code: err.code,
