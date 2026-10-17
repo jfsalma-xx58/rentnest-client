@@ -131,19 +131,21 @@ const Navbar = () => {
     : "sticky top-0 z-50 border-b border-charcoal/10 bg-cream";
 
   const innerClass = isHome
-    ? "mx-auto flex h-[72px] max-w-[1200px] items-center justify-between gap-8 px-5 sm:px-10 lg:px-0"
-    : "mx-auto flex max-w-7xl items-center justify-between px-4 py-3";
+    ? "mx-auto flex h-[72px] max-w-[1200px] items-center justify-between gap-8 px-5 sm:px-10 md:grid md:grid-cols-[1fr_auto_1fr] lg:px-0"
+    : "mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:grid md:grid-cols-[1fr_auto_1fr]";
 
   return (
     <header className={headerClass}>
       <nav className={innerClass} aria-label="Primary">
-        <Logo light={isHome} />
+        <div className="justify-self-start">
+          <Logo light={isHome} />
+        </div>
 
-        <div className="hidden flex-1 items-center gap-8 md:flex md:pl-6">
+        <div className="hidden items-center justify-center gap-8 md:flex">
           {links}
         </div>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center justify-end gap-3 md:flex">
           {buttons}
         </div>
 
